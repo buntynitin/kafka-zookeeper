@@ -1,0 +1,16 @@
+FROM openjdk:8-jdk
+ENV SCALA 2.12
+ENV KAFKA 2.8.0
+ENV KAFKA_TAR kafka-$SCALA-$KAFKA.tgz
+ENV KAFKA_DIR kafka_$SCALA-$KAFKA
+ENV BASE_DIR /usr/local/kafka
+RUN mkdir /usr/local/kafka
+RUN apt-get update && apt-get install python3 curl -y
+WORKDIR /usr/local/kafka
+COPY entrypoint.sh .
+COPY env_properties.py .
+RUN curl https://apachemirror.wuchna.com/kafka/$KAFKA/kafka_$SCALA-$KAFKA.tgz -o $KAFKA_TAR
+RUN tar zxf $KAFKA_TAR
+WORKDIR /
+RUN chmod -R 777 $BASE_DIR
+CMD ["sh","-c","bash $BASE_DIR/entrypoint.sh"]

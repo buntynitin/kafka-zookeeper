@@ -1,0 +1,53 @@
+version: '2.1'
+
+services:
+  zoo1:
+    image: zookeeper2
+    ports:
+      - 2181:2181
+
+  kafka1:
+    image: kafka2
+    hostname: kafka1
+    ports:
+      - 9092:9092
+    environment:
+      LISTENERS: LISTENER_DOCKER_INTERNAL://0.0.0.0:29092,LISTENER_DOCKER_EXTERNAL://0.0.0.0:9092
+      ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:29092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      ZOOKEEPER_CONNECT: zoo1:2181
+      BROKER_ID: 1
+    depends_on:
+      - zoo1
+
+  kafka2:
+    image: mykafka
+    hostname: kafka2
+    ports:
+      - 9093:9093
+    environment:
+      listeners: LISTENER_DOCKER_INTERNAL://0.0.0.0:29093,LISTENER_DOCKER_EXTERNAL://0.0.0.0:9093
+      advertised.listeners: LISTENER_DOCKER_INTERNAL://kafka2:29093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      listener.security.protocol.map: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      inter.broker.listener.name: LISTENER_DOCKER_INTERNAL
+      zookeeper.connect: zoo1:2181
+      broker.id: 2
+    depends_on:
+      - zoo1
+
+  kafka3:
+    image: mykafka
+    hostname: kafka3
+    ports:
+      - 9094:9094
+    environment:
+      listeners: LISTENER_DOCKER_INTERNAL://0.0.0.0:29094,LISTENER_DOCKER_EXTERNAL://0.0.0.0:9094
+      advertised.listeners: LISTENER_DOCKER_INTERNAL://kafka3:29094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      listener.security.protocol.map: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      inter.broker.listener.name: LISTENER_DOCKER_INTERNAL
+      zookeeper.connect: zoo1:2181
+      broker.id: 3
+    depends_on:
+      - zoo1
+
